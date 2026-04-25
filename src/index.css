@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-primary: #0061a4;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #2196f3;
+  --color-on-primary-container: #002c4f;
+  
+  --color-secondary: #526069;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #d3e2ed;
+  --color-on-secondary-container: #56656e;
+  
+  --color-surface: #faf9f9;
+  --color-on-surface: #1a1c1c;
+  --color-surface-variant: #e3e2e2;
+  --color-on-surface-variant: #404752;
+  
+  --color-outline: #707883;
+  --color-outline-variant: #bfc7d4;
+  
+  --color-background: #faf9f9;
+  --color-on-background: #1a1c1c;
+
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+    @screen md {
+      font-size: 17px;
+    }
+  }
+
+  body {
+    @apply bg-background text-on-background antialiased selection:bg-primary/20 selection:text-primary;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
+    line-height: 1.25;
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
