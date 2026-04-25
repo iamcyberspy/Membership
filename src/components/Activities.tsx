@@ -1,22 +1,40 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Calendar, Filter, Search, PersonStanding, FileText, AlertTriangle, UserPlus, Settings, Download, Trash2, ArrowRight } from 'lucide-react';
-
-const mockActivities = [
-  { id: 1, user: 'สมหญิง สมใจ', action: 'สมัครสมาชิกใหม่', module: 'ระบบสมาชิก', time: '10:30 น.', date: 'วันนี้', type: 'info', icon: PersonStanding },
-  { id: 2, user: 'คุณวิชัย', action: 'อัปเดตข้อมูลโปรไฟล์', module: 'จัดการผู้ใช้', time: '09:15 น.', date: 'วันนี้', type: 'success', icon: FileText },
-  { id: 3, user: 'ระบบความปลอดภัย', action: 'พบการพยายามเข้าสู่ระบบผิดพลาด 3 ครั้ง', module: 'ความปลอดภัย', time: '08:45 น.', date: 'วันนี้', type: 'warning', icon: AlertTriangle },
-  { id: 4, user: 'ประยุทธ์ สิทธิ์', action: 'เข้าสู่ระบบ', module: 'ระบบจัดการ', time: '15:20 น.', date: 'เมื่อวาน', type: 'info', icon: PersonStanding },
-  { id: 5, user: 'แพรทองทา', action: 'ลบผู้ใช้งาน "ชูใจ ชอบใจ"', module: 'จัดการผู้ใช้', time: '14:10 น.', date: 'เมื่อวาน', type: 'warning', icon: Trash2 },
-  { id: 6, user: 'ระบบ', action: 'ส่งอีเมลแจ้งเตือนประจำสัปดาห์', module: 'การแจ้งเตือน', time: '10:00 น.', date: 'เมื่อวาน', type: 'success', icon: FileText },
-  { id: 7, user: 'มานี มีใจ', action: 'เปลี่ยนรหัสผ่าน', module: 'ความปลอดภัย', time: '16:45 น.', date: '24 เม.ย. 2026', type: 'success', icon: Settings },
-  { id: 8, user: 'สมชาย ใจดี', action: 'ส่งออกรายงานผู้ใช้งาน', module: 'รายงาน', time: '09:00 น.', date: '24 เม.ย. 2026', type: 'info', icon: Download },
-];
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Calendar, Filter, Search, PersonStanding, FileText, AlertTriangle, UserPlus, Settings, Download, Trash2, ArrowRight, Server } from 'lucide-react';
+import { io, Socket } from 'socket.io-client';
 
 export default function Activities() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [activitiesData, setActivitiesData] = useState<any[]>([]);
   
-  const filteredActivities = mockActivities.filter(activity => 
+  useEffect(() => {
+    const newSocket = io();
+    
+    newSocket.on('init', (data) => {
+      setActivitiesData(data.activities);
+    });
+
+    newSocket.on('activity:new', (newActivity) => {
+      setActivitiesData(prev => [newActivity, ...prev]); 
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  const getIcon = (iconName: string, type: string) => {
+    if (iconName === 'server') return Server;
+    if (iconName === 'user') return PersonStanding;
+    if (type === 'warning') return AlertTriangle;
+    if (type === 'success') return FileText;
+    return PersonStanding;
+  };
+
+  const filteredActivities = activitiesData.filter(activity => 
     activity.user.toLowerCase().includes(searchTerm.toLowerCase()) || 
     activity.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
     activity.module.toLowerCase().includes(searchTerm.toLowerCase())
@@ -29,7 +47,7 @@ export default function Activities() {
     }
     acc[activity.date].push(activity);
     return acc;
-  }, {} as Record<string, typeof mockActivities>);
+  }, {} as Record<string, typeof activitiesData>);
 
   return (
     <div className="space-y-8 font-sans">
@@ -98,45 +116,51 @@ export default function Activities() {
                 </div>
                 
                 <div className="space-y-6">
-                  {groupedActivities[date].map((activity, actIdx) => (
-                    <motion.div 
-                      key={activity.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: actIdx * 0.05 }}
-                      className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group select-none"
-                    >
-                      {/* Timeline Dot */}
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-white shadow-sm shrink-0 md:order-1 md:group-odd:-ml-5 md:group-even:-mr-5 z-10">
-                        <div className={`w-full h-full rounded-full flex items-center justify-center ${
-                          activity.type === 'warning' ? 'bg-red-50 text-red-600' : 
-                          activity.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-primary/10 text-primary'
-                        }`}>
-                          <activity.icon size={16} className="shrink-0" />
-                        </div>
-                      </div>
-                      
-                      {/* Card layout adjustment for mobile vs desktop */}
-                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] px-4">
-                        <div className="p-5 bg-surface hover:bg-surface-bright rounded-2xl border border-surface-variant shadow-sm hover:shadow-md transition-all cursor-pointer group-hover:-translate-y-1">
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="text-xs font-bold uppercase tracking-wider text-primary">{activity.module}</span>
-                            <span className="text-xs font-medium text-outline flex items-center gap-1">
-                              <Calendar size={12} />
-                              {activity.time}
-                            </span>
-                          </div>
-                          <p className="text-on-surface font-bold text-[15px] mb-1 leading-snug">{activity.action}</p>
-                          <div className="flex items-center gap-2 mt-3 text-sm text-on-surface-variant">
-                            <div className="w-6 h-6 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-xs shrink-0">
-                              {activity.user.charAt(0)}
+                  <AnimatePresence mode="popLayout">
+                    {groupedActivities[date].map((activity, actIdx) => {
+                      const Icon = getIcon(activity.icon, activity.type);
+                      return (
+                        <motion.div 
+                          key={activity.id}
+                          initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                          transition={{ delay: 0.05 }}
+                          className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group select-none"
+                        >
+                          {/* Timeline Dot */}
+                          <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-white shadow-sm shrink-0 md:order-1 md:group-odd:-ml-5 md:group-even:-mr-5 z-10">
+                            <div className={`w-full h-full rounded-full flex items-center justify-center ${
+                              activity.type === 'warning' ? 'bg-red-50 text-red-600' : 
+                              activity.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-primary/10 text-primary'
+                            }`}>
+                              <Icon size={16} className="shrink-0" />
                             </div>
-                            <span className="truncate">{activity.user}</span>
                           </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                          
+                          {/* Card layout adjustment for mobile vs desktop */}
+                          <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] px-4">
+                            <div className="p-5 bg-surface hover:bg-surface-bright rounded-2xl border border-surface-variant shadow-sm hover:shadow-md transition-all cursor-pointer group-hover:-translate-y-1">
+                              <div className="flex justify-between items-start mb-2">
+                                <span className="text-xs font-bold uppercase tracking-wider text-primary">{activity.module}</span>
+                                <span className="text-xs font-medium text-outline flex items-center gap-1">
+                                  <Calendar size={12} />
+                                  {activity.time}
+                                </span>
+                              </div>
+                              <p className="text-on-surface font-bold text-[15px] mb-1 leading-snug">{activity.action}</p>
+                              <div className="flex items-center gap-2 mt-3 text-sm text-on-surface-variant">
+                                <div className="w-6 h-6 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                                  {activity.user.charAt(0)}
+                                </div>
+                                <span className="truncate">{activity.user}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
                 </div>
               </div>
             ))}

@@ -1,17 +1,20 @@
-import { Users, Bell, CheckCircle, PersonStanding, FileText, AlertTriangle, TrendingUp, Clock } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Users, Bell, CheckCircle, PersonStanding, FileText, AlertTriangle, TrendingUp, Clock, Server, MonitorPlay } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../App';
 import { useState, useEffect } from 'react';
-
-const activitiesData = [
-  { user: 'สมหญิง สมใจ', action: 'สมัครสมาชิกใหม่', module: 'ระบบสมาชิก', time: '10 นาทีที่แล้ว', icon: PersonStanding, type: 'info' },
-  { user: 'คุณวิชัย', action: 'อัปเดตข้อมูลโปรไฟล์', module: 'จัดการผู้ใช้', time: '1 ชั่วโมงที่แล้ว', icon: FileText, type: 'success' },
-  { user: 'ระบบความปลอดภัย', action: 'พบการพยายามเข้าสู่ระบบผิดพลาด 3 ครั้ง', module: 'ความปลอดภัย', time: '2 ชั่วโมงที่แล้ว', icon: AlertTriangle, type: 'warning' },
-];
+import { io, Socket } from 'socket.io-client';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('th-TH'));
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [dashboardStats, setDashboardStats] = useState({
+    users: 0,
+    activities: 0,
+    online: 0,
+    systemStatus: 'กำลังเชื่อมต่อ...',
+  });
+  const [activities, setActivities] = useState<any[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -20,10 +23,42 @@ export default function Dashboard() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    // Connect to WebSocket server relative to current origin
+    const newSocket = io();
+    
+    newSocket.on('init', (data) => {
+      setDashboardStats(data.stats);
+      setActivities(data.activities);
+    });
+
+    newSocket.on('stats:update', (newStats) => {
+      setDashboardStats(newStats);
+    });
+
+    newSocket.on('activity:new', (newActivity) => {
+      setActivities(prev => [newActivity, ...prev].slice(0, 10)); // Keep last 10
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  const getIcon = (iconName: string, type: string) => {
+    if (iconName === 'server') return Server;
+    if (iconName === 'user') return PersonStanding;
+    if (type === 'warning') return AlertTriangle;
+    if (type === 'success') return FileText;
+    return PersonStanding;
+  };
+
   const stats = [
-    { label: 'ผู้ใช้งานทั้งหมด', value: '1,234', trend: '+12% จากเดือนที่แล้ว', icon: Users, color: 'text-blue-600', bg: 'bg-blue-100', up: true },
-    { label: 'กิจกรรมวันนี้', value: '56', trend: '+5% จากสัปดาห์ที่แล้ว', icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-100', up: true },
-    { label: 'สถานะเซิร์ฟเวอร์', value: '99.9%', trend: `เวลาระบบ: ${currentTime}`, icon: Clock, color: 'text-green-600', bg: 'bg-green-100', up: false },
+    { label: 'ผู้ใช้งานทั้งหมด', value: dashboardStats.users.toLocaleString(), trend: '+12% จากเดือนที่แล้ว', icon: Users, color: 'text-blue-600', bg: 'bg-blue-100', up: true },
+    { label: 'ผู้ใช้งานออนไลน์', value: dashboardStats.online.toLocaleString() + ' คน', trend: 'กำลังใช้งานตอนนี้', icon: MonitorPlay, color: 'text-purple-600', bg: 'bg-purple-100', up: true },
+    { label: 'สถานะเซิร์ฟเวอร์', value: dashboardStats.systemStatus, trend: `เวลาระบบ: ${currentTime}`, icon: Clock, color: 'text-green-600', bg: 'bg-green-100', up: false },
   ];
 
   return (
@@ -84,29 +119,35 @@ export default function Dashboard() {
           </div>
           
           <div className="space-y-4">
-            {activitiesData.map((item, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + idx * 0.1 }}
-                className="flex items-center gap-5 p-5 bg-white rounded-[20px] shadow-sm border border-surface-variant hover:border-primary/30 transition-all cursor-pointer group"
-              >
-                <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${
-                  item.type === 'warning' ? 'bg-red-50 text-red-600' : 
-                  item.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-primary/5 text-primary'
-                }`}>
-                  <item.icon size={24} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-on-surface font-bold text-[16px] truncate">{item.user} <span className="font-normal text-on-surface-variant">{item.action}</span></p>
-                  <p className="text-on-surface-variant text-xs font-medium uppercase tracking-wider mt-0.5">{item.module}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-outline text-xs font-bold whitespace-nowrap">{item.time}</p>
-                </div>
-              </motion.div>
-            ))}
+            <AnimatePresence>
+              {activities.map((item, idx) => {
+                const Icon = getIcon(item.icon, item.type);
+                return (
+                  <motion.div 
+                    key={item.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="flex items-center gap-5 p-5 bg-white rounded-[20px] shadow-sm border border-surface-variant hover:border-primary/30 transition-all cursor-pointer group"
+                  >
+                    <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${
+                      item.type === 'warning' ? 'bg-red-50 text-red-600' : 
+                      item.type === 'success' ? 'bg-green-50 text-green-600' : 'bg-primary/5 text-primary'
+                    }`}>
+                      <Icon size={24} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-on-surface font-bold text-[16px] truncate">{item.user} <span className="font-normal text-on-surface-variant">{item.action}</span></p>
+                      <p className="text-on-surface-variant text-xs font-medium uppercase tracking-wider mt-0.5">{item.module}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-outline text-xs font-bold whitespace-nowrap">{item.time}</p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         </div>
 
