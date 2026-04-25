@@ -53,6 +53,8 @@ export default function Roles() {
   const [selectedRole, setSelectedRole] = useState(initialRoles[0].id);
   const [rolePerms, setRolePerms] = useState<Record<string, string[]>>(mockPerms);
   const [isEditing, setIsEditing] = useState(false);
+  const [editingName, setEditingName] = useState('');
+  const [editingDesc, setEditingDesc] = useState('');
   const [showToast, setShowToast] = useState(false);
 
   const activeRole = roles.find(r => r.id === selectedRole);
@@ -71,9 +73,28 @@ export default function Roles() {
   };
 
   const handleSave = () => {
+    setRoles(prev => prev.map(r => r.id === selectedRole && r.type === 'custom' ? { ...r, name: editingName, description: editingDesc } : r));
     setIsEditing(false);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+    setEditingName(activeRole?.name || '');
+    setEditingDesc(activeRole?.description || '');
+  };
+
+  const handleCreateRole = () => {
+    const newId = Date.now().toString();
+    const newRole = { id: newId, name: 'บทบาทใหม่ ' + (roles.length + 1), description: '', usersCount: 0, type: 'custom' };
+    setRoles([...roles, newRole]);
+    setSelectedRole(newId);
+    setRolePerms(prev => ({ ...prev, [newId]: [] }));
+
+    setIsEditing(true);
+    setEditingName(newRole.name);
+    setEditingDesc('');
   };
 
   return (
@@ -85,7 +106,10 @@ export default function Roles() {
         </motion.div>
         
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex gap-3">
-          <button className="bg-primary text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 hover:bg-opacity-90 active:scale-95 transition-all shadow-md">
+          <button 
+            onClick={handleCreateRole}
+            className="bg-primary text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 hover:bg-opacity-90 active:scale-95 transition-all shadow-md"
+          >
             <Plus size={20} />
             เพิ่มบทบาทใหม่
           </button>
@@ -135,14 +159,34 @@ export default function Roles() {
             {activeRole && (
               <>
                 <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between border-b border-surface-variant bg-surface/30 gap-6">
-                  <div className="space-y-2">
+                  <div className="space-y-2 w-full">
                     <div className="flex items-center gap-3">
                       <div className={`p-2.5 rounded-xl ${activeRole.type === 'system' ? 'bg-primary/10 text-primary' : 'bg-purple-50 text-purple-600'}`}>
                         {activeRole.type === 'system' ? <ShieldAlert size={24} /> : <Key size={24} />}
                       </div>
-                      <h2 className="text-2xl font-black text-on-surface">{activeRole.name}</h2>
+                      {isEditing && activeRole.type === 'custom' ? (
+                        <input 
+                          type="text" 
+                          value={editingName} 
+                          onChange={e => setEditingName(e.target.value)} 
+                          className="text-2xl font-black text-on-surface bg-surface border border-outline-variant px-3 py-1 rounded-lg outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full max-w-sm"
+                          placeholder="ชื่อบทบาท"
+                        />
+                      ) : (
+                        <h2 className="text-2xl font-black text-on-surface">{activeRole.name}</h2>
+                      )}
                     </div>
-                    <p className="text-on-surface-variant text-[15px] font-medium max-w-lg">{activeRole.description}</p>
+                    {isEditing && activeRole.type === 'custom' ? (
+                      <textarea 
+                        value={editingDesc} 
+                        onChange={e => setEditingDesc(e.target.value)} 
+                        className="text-on-surface-variant text-[15px] font-medium bg-surface border border-outline-variant px-3 py-2 rounded-lg outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 w-full max-w-lg resize-none ml-[52px]"
+                        rows={2}
+                        placeholder="คำอธิบายสิทธิ์การใช้งาน"
+                      />
+                    ) : (
+                      <p className="text-on-surface-variant text-[15px] font-medium max-w-lg">{activeRole.description}</p>
+                    )}
                   </div>
                   
                   <div className="flex gap-3">
@@ -164,7 +208,7 @@ export default function Roles() {
                       </>
                     ) : (
                       <button 
-                        onClick={() => setIsEditing(true)}
+                        onClick={handleEditClick}
                         className="px-6 py-3 rounded-xl font-bold bg-surface hover:bg-surface-variant border border-outline-variant text-on-surface transition-all flex items-center gap-2 active:scale-95 text-sm"
                       >
                         <Edit2 size={18} />
