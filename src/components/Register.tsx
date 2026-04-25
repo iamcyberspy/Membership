@@ -62,7 +62,7 @@ export default function Register() {
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="w-full flex flex-col">
           
           {/* Header */}
-          <motion.variants variants={itemVariants}>
+          <motion.div variants={itemVariants}>
             <div className="flex flex-col items-center mb-10">
               <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-primary/10 -rotate-3 text-4xl">
                 ✨
@@ -72,10 +72,10 @@ export default function Register() {
                 กรอกข้อมูลของคุณเพื่อเริ่มต้นใช้งานระบบ
               </p>
             </div>
-          </motion.variants>
+          </motion.div>
 
           {/* Form */}
-          <motion.variants variants={itemVariants}>
+          <motion.div variants={itemVariants}>
             <form className="space-y-6 w-full" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <label className="text-sm font-bold text-on-surface" htmlFor="name">ชื่อ-นามสกุล</label>
@@ -158,9 +158,9 @@ export default function Register() {
                 )}
               </button>
             </form>
-          </motion.variants>
+          </motion.div>
 
-          <motion.variants variants={itemVariants}>
+          <motion.div variants={itemVariants}>
             <div className="mt-8 pt-8 border-t border-outline-variant/30 text-center w-full">
               <p className="text-on-surface-variant text-[15px] font-medium">
                 มีบัญชีผู้ใช้งานอยู่แล้ว? 
@@ -169,7 +169,7 @@ export default function Register() {
                 </Link>
               </p>
             </div>
-          </motion.variants>
+          </motion.div>
           
         </motion.div>
       </motion.div>

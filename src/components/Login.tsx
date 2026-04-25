@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Key, Eye, EyeOff, ArrowRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Mail, Key, Eye, EyeOff, ArrowRight, X, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../App';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -9,6 +9,13 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Forgot Password specific state
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -20,6 +27,21 @@ export default function Login() {
       login(email || 'somchai.j@example.com');
       navigate('/');
     }, 1200);
+  };
+
+  const handleForgotPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsResetting(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsResetting(false);
+      setResetSuccess(true);
+      setTimeout(() => {
+        setIsForgotPasswordOpen(false);
+        setResetSuccess(false);
+        setResetEmail('');
+      }, 3000);
+    }, 1500);
   };
 
   const containerVariants = {
@@ -61,7 +83,7 @@ export default function Login() {
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="w-full flex flex-col">
           
           {/* Header */}
-          <motion.variants variants={itemVariants}>
+          <motion.div variants={itemVariants}>
             <div className="flex flex-col items-center mb-10">
               <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-primary/10 rotate-3 text-4xl">
                 👋
@@ -71,10 +93,10 @@ export default function Login() {
                 กรุณากรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ
               </p>
             </div>
-          </motion.variants>
+          </motion.div>
 
           {/* Form */}
-          <motion.variants variants={itemVariants}>
+          <motion.div variants={itemVariants}>
             <form className="space-y-6 w-full" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <label className="text-sm font-bold text-on-surface" htmlFor="email">อีเมล</label>
@@ -97,7 +119,7 @@ export default function Login() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <label className="text-sm font-bold text-on-surface" htmlFor="password">รหัสผ่าน</label>
-                  <a href="#" className="flex-none text-sm text-primary hover:text-primary/80 font-bold transition-colors">ลืมรหัสผ่าน?</a>
+                  <button type="button" onClick={() => setIsForgotPasswordOpen(true)} className="flex-none text-sm text-primary hover:text-primary/80 font-bold transition-colors cursor-pointer">ลืมรหัสผ่าน?</button>
                 </div>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-sm border border-outline-variant flex items-center justify-center rounded-lg z-10 text-outline-variant group-focus-within:text-primary transition-colors">
@@ -157,9 +179,9 @@ export default function Login() {
                 )}
               </button>
             </form>
-          </motion.variants>
+          </motion.div>
 
-          <motion.variants variants={itemVariants}>
+          <motion.div variants={itemVariants}>
             <div className="mt-8 pt-8 border-t border-outline-variant/30 text-center w-full">
               <p className="text-on-surface-variant text-[15px] font-medium">
                 ยังไม่มีบัญชีผู้ใช้งานใช่ไหม? 
@@ -168,10 +190,107 @@ export default function Login() {
                 </Link>
               </p>
             </div>
-          </motion.variants>
+          </motion.div>
           
         </motion.div>
       </motion.div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {isForgotPasswordOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsForgotPasswordOpen(false)}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[440px] bg-white rounded-[32px] shadow-2xl z-50 p-8 overflow-hidden"
+            >
+              <button
+                onClick={() => setIsForgotPasswordOpen(false)}
+                className="absolute right-6 top-6 w-8 h-8 flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="flex flex-col items-center text-center">
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm border ${resetSuccess ? 'bg-green-50 text-green-600 border-green-100' : 'bg-primary/10 text-primary border-primary/20'}`}>
+                  {resetSuccess ? <CheckCircle size={32} /> : <Key size={32} />}
+                </div>
+
+                {!resetSuccess ? (
+                  <>
+                    <h2 className="text-2xl font-black text-on-surface mb-2 tracking-tight">ลืมรหัสผ่าน</h2>
+                    <p className="text-on-surface-variant text-[15px] font-medium mb-8">
+                      กรอกอีเมลของคุณเพื่อรับลิงก์สำหรับตั้งรหัสผ่านใหม่
+                    </p>
+
+                    <form onSubmit={handleForgotPassword} className="w-full space-y-6">
+                      <div className="relative group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-sm border border-outline-variant flex items-center justify-center rounded-lg z-10 text-outline-variant group-focus-within:text-primary transition-colors">
+                          <Mail size={18} />
+                        </div>
+                        <input
+                          type="email"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          placeholder="name@example.com"
+                          className="w-full pl-[4.5rem] pr-4 py-4 rounded-xl border border-outline-variant bg-surface focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all placeholder:text-outline-variant font-medium"
+                          required
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isResetting || !resetEmail}
+                        className={`w-full bg-primary text-white py-4 rounded-xl font-extrabold flex justify-center items-center gap-2 hover:bg-opacity-90 active:scale-[0.98] transition-all relative overflow-hidden group ${isResetting || !resetEmail ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      >
+                        {isResetting ? (
+                          <span className="loading flex items-center gap-3">
+                            <div className="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin" />
+                            กำลังส่งลิงก์...
+                          </span>
+                        ) : (
+                          <>
+                            <span className="relative z-10 w-full text-center">ส่งลิงก์ตั้งค่ารหัสผ่าน</span>
+                            <div className="absolute right-6 w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transform group-hover:translate-x-1 transition-transform">
+                              <ArrowRight size={18} />
+                            </div>
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center"
+                  >
+                    <h2 className="text-2xl font-black text-on-surface mb-2 tracking-tight">ส่งลิงก์สำเร็จแล้ว</h2>
+                    <p className="text-on-surface-variant text-[15px] font-medium mb-8">
+                      เราได้ส่งลิงก์ตั้งค่ารหัสผ่านใหม่ไปยัง 
+                      <span className="font-bold text-on-surface ml-1 block mt-1">{resetEmail}</span>
+                    </p>
+                    <button
+                      onClick={() => setIsForgotPasswordOpen(false)}
+                      className="w-full bg-surface-variant hover:bg-outline-variant/30 text-on-surface py-4 rounded-xl font-extrabold transition-all"
+                    >
+                      กลับไปหน้าเข้าสู่ระบบ
+                    </button>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
