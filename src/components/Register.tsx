@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Mail, Key, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Key, Eye, EyeOff, User, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuth } from '../App';
 import { useNavigate, Link } from 'react-router-dom';
 
-export default function Login() {
+export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +18,7 @@ export default function Login() {
     setIsLoading(true);
     // Simulate API call
     setTimeout(() => {
-      login(email || 'somchai.j@example.com');
+      login(email || 'newuser@example.com');
       navigate('/');
     }, 1200);
   };
@@ -63,12 +64,12 @@ export default function Login() {
           {/* Header */}
           <motion.variants variants={itemVariants}>
             <div className="flex flex-col items-center mb-10">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-primary/10 rotate-3 text-4xl">
-                👋
+              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-primary/10 -rotate-3 text-4xl">
+                ✨
               </div>
-              <h1 className="text-3xl font-black text-on-surface mb-2 tracking-tight">ยินดีต้อนรับกลับมา</h1>
+              <h1 className="text-3xl font-black text-on-surface mb-2 tracking-tight">สร้างบัญชีใหม่</h1>
               <p className="text-on-surface-variant text-center text-[15px] font-medium max-w-[280px]">
-                กรุณากรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ
+                กรอกข้อมูลของคุณเพื่อเริ่มต้นใช้งานระบบ
               </p>
             </div>
           </motion.variants>
@@ -76,6 +77,24 @@ export default function Login() {
           {/* Form */}
           <motion.variants variants={itemVariants}>
             <form className="space-y-6 w-full" onSubmit={handleSubmit}>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-on-surface" htmlFor="name">ชื่อ-นามสกุล</label>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-sm border border-outline-variant flex items-center justify-center rounded-lg z-10 text-outline-variant group-focus-within:text-primary transition-colors">
+                    <User size={18} />
+                  </div>
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="สมชาย ใจดี"
+                    className="w-full pl-[4.5rem] pr-4 py-4 rounded-xl border border-outline-variant bg-surface focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all placeholder:text-outline-variant font-medium"
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-bold text-on-surface" htmlFor="email">อีเมล</label>
                 <div className="relative group">
@@ -95,10 +114,7 @@ export default function Login() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <label className="text-sm font-bold text-on-surface" htmlFor="password">รหัสผ่าน</label>
-                  <a href="#" className="flex-none text-sm text-primary hover:text-primary/80 font-bold transition-colors">ลืมรหัสผ่าน?</a>
-                </div>
+                <label className="text-sm font-bold text-on-surface" htmlFor="password">รหัสผ่าน</label>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-sm border border-outline-variant flex items-center justify-center rounded-lg z-10 text-outline-variant group-focus-within:text-primary transition-colors">
                     <Key size={18} />
@@ -122,21 +138,6 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="flex items-center text-sm pt-1">
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className="relative flex items-center justify-center">
-                    <input
-                      type="checkbox"
-                      className="peer w-5 h-5 appearance-none rounded border-2 border-outline-variant checked:border-primary checked:bg-primary transition-all cursor-pointer"
-                    />
-                    <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 14 14" fill="none">
-                      <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" stroke="currentColor"/>
-                    </svg>
-                  </div>
-                  <span className="text-on-surface-variant group-hover:text-on-surface transition-colors font-medium select-none">จดจำฉันไว้ในระบบ</span>
-                </label>
-              </div>
-
               <button
                 type="submit"
                 disabled={isLoading}
@@ -145,11 +146,11 @@ export default function Login() {
                 {isLoading ? (
                   <span className="loading flex items-center gap-3">
                     <div className="w-5 h-5 border-3 border-white/20 border-t-white rounded-full animate-spin" />
-                    กำลังเข้าสู่ระบบ...
+                    กำลังสร้างบัญชี...
                   </span>
                 ) : (
                   <>
-                    <span className="relative z-10 w-full text-center">เข้าสู่ระบบ</span>
+                    <span className="relative z-10 w-full text-center">สมัครสมาชิก</span>
                     <div className="absolute right-6 w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transform group-hover:translate-x-1 transition-transform">
                       <ArrowRight size={18} />
                     </div>
@@ -162,9 +163,9 @@ export default function Login() {
           <motion.variants variants={itemVariants}>
             <div className="mt-8 pt-8 border-t border-outline-variant/30 text-center w-full">
               <p className="text-on-surface-variant text-[15px] font-medium">
-                ยังไม่มีบัญชีผู้ใช้งานใช่ไหม? 
-                <Link to="/register" className="text-primary hover:text-primary/80 font-black ml-2 underline decoration-2 underline-offset-4 decoration-primary/30 transition-colors">
-                  สร้างบัญชีใหม่
+                มีบัญชีผู้ใช้งานอยู่แล้ว? 
+                <Link to="/login" className="text-primary hover:text-primary/80 font-black ml-2 underline decoration-2 underline-offset-4 decoration-primary/30 transition-colors">
+                  เข้าสู่ระบบ
                 </Link>
               </p>
             </div>
@@ -175,4 +176,3 @@ export default function Login() {
     </div>
   );
 }
-

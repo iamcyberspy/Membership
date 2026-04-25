@@ -2,6 +2,7 @@ import { HashRouter as Router, Routes, Route, Navigate, Outlet } from 'react-rou
 import { useState, createContext, useContext, ReactNode } from 'react';
 import Layout from './components/Layout';
 import Login from './components/Login';
+import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import Settings from './components/Settings';
 import Profile from './components/Profile';
@@ -43,6 +44,7 @@ export default function App() {
       <Router>
         <Routes>
           <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+          <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
           
           <Route
             element={
