@@ -29,7 +29,11 @@ async function startServer() {
   };
 
   let activities = [
-    { id: 1, user: 'ระบบ', action: 'ระบบพร้อมใช้งาน', module: 'ระบบ', time: new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.', date: 'วันนี้', type: 'info', icon: 'server' }
+    { id: 1, user: 'ระบบ', action: 'ระบบพร้อมใช้งาน', module: 'ระบบ', time: new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}) + ' น.', date: 'วันนี้', type: 'info', icon: 'server' },
+    { id: 2, user: 'คุณวิชัย', action: 'อัปเดตข้อมูลโปรไฟล์', module: 'จัดการผู้ใช้', time: '09:15 น.', date: 'วันนี้', type: 'success', icon: 'FileText' },
+    { id: 3, user: 'ระบบความปลอดภัย', action: 'พบการพยายามเข้าสู่ระบบผิดพลาด 3 ครั้ง', module: 'ความปลอดภัย', time: '08:45 น.', date: 'วันนี้', type: 'warning', icon: 'AlertTriangle' },
+    { id: 4, user: 'ประยุทธ์ สิทธิ์', action: 'เข้าสู่ระบบ', module: 'ระบบจัดการ', time: '15:20 น.', date: 'เมื่อวาน', type: 'info', icon: 'user' },
+    { id: 5, user: 'แพรทองทา', action: 'ลบผู้ใช้งาน "ชูใจ ชอบใจ"', module: 'จัดการผู้ใช้', time: '14:10 น.', date: 'เมื่อวาน', type: 'warning', icon: 'Trash2' },
   ];
 
   io.on('connection', (socket) => {

@@ -13,13 +13,18 @@ const mockUsers = [
 
 export default function Users() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('all');
   const [users, setUsers] = useState(mockUsers);
   const [userToDelete, setUserToDelete] = useState<{id: number, name: string} | null>(null);
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    return matchesSearch && matchesStatus && matchesRole;
+  });
 
   const handleDeleteClick = (user: {id: number, name: string}) => {
     setUserToDelete(user);
@@ -58,8 +63,8 @@ export default function Users() {
       </header>
 
       {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-[20px] shadow-sm border border-surface-variant flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="relative w-full sm:w-96 group">
+      <div className="bg-white p-4 rounded-[20px] shadow-sm border border-surface-variant flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="relative w-full md:flex-1 group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant w-5 h-5 group-focus-within:text-primary transition-colors" />
           <input 
             type="text" 
@@ -70,11 +75,32 @@ export default function Users() {
           />
         </div>
         
-        <div className="flex gap-2 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 border border-outline-variant rounded-xl hover:bg-surface-variant transition-colors text-on-surface-variant font-medium">
-            <Filter size={18} />
-            <span>กรองข้อมูล</span>
-          </button>
+        <div className="flex gap-3 w-full md:w-auto h-auto">
+          <div className="relative flex-1 md:flex-none">
+            <select 
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full px-4 py-3 border border-outline-variant rounded-xl bg-surface hover:bg-surface-variant transition-colors text-on-surface-variant font-medium outline-none focus:border-primary appearance-none pr-10 cursor-pointer"
+              style={{ backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
+            >
+              <option value="all">บทบาททั้งหมด</option>
+              <option value="ผู้ใช้งาน">ผู้ใช้งาน</option>
+              <option value="ผู้ดูแลระบบ">ผู้ดูแลระบบ</option>
+              <option value="ผู้จัดการ">ผู้จัดการ</option>
+            </select>
+          </div>
+          <div className="relative flex-1 md:flex-none">
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full px-4 py-3 border border-outline-variant rounded-xl bg-surface hover:bg-surface-variant transition-colors text-on-surface-variant font-medium outline-none focus:border-primary appearance-none pr-10 cursor-pointer"
+              style={{ backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
+            >
+              <option value="all">สถานะทั้งหมด</option>
+              <option value="active">กำลังใช้งาน</option>
+              <option value="inactive">ไม่ได้ใช้งาน</option>
+            </select>
+          </div>
         </div>
       </div>
 
