@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useState, createContext, useContext, ReactNode } from 'react';
 import Layout from './components/Layout';
 import Login from './components/Login';
@@ -38,7 +38,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
-      <Router basename={import.meta.env.BASE_URL}>
+      <Router>
         <Routes>
           <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
           
