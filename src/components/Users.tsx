@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Search, Filter, MoreVertical, Edit2, Trash2, UserPlus, Shield, User, AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Search, Filter, MoreVertical, Edit2, Trash2, UserPlus, Shield, User, AlertTriangle, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-const mockUsers = [
+export const mockUsers = [
   { id: 1, name: 'สมหญิง สมใจ', email: 'somying.s@example.com', role: 'ผู้ใช้งาน', status: 'active', lastLogin: '2 ชั่วโมงที่แล้ว' },
   { id: 2, name: 'คุณวิชัย', email: 'wichai.k@example.com', role: 'ผู้ดูแลระบบ', status: 'active', lastLogin: '1 ชั่วโมงที่แล้ว' },
   { id: 3, name: 'ประยุทธ์ สิทธิ์', email: 'prayut.s@example.com', role: 'ผู้ใช้งาน', status: 'inactive', lastLogin: '3 วันที่แล้ว' },
@@ -157,6 +158,9 @@ export default function Users() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <Link to={`/users/${user.id}`} className="p-2 text-on-surface-variant hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <Eye size={18} />
+                      </Link>
                       <button className="p-2 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
                         <Edit2 size={18} />
                       </button>

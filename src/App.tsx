@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard';
 import Settings from './components/Settings';
 import Profile from './components/Profile';
 import Users from './components/Users';
+import UserDetails from './components/UserDetails';
 import Activities from './components/Activities';
 import Roles from './components/Roles';
 
@@ -58,6 +59,7 @@ export default function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/users" element={<Users />} />
+              <Route path="/users/:id" element={<UserDetails />} />
               <Route path="/roles" element={<Roles />} />
               <Route path="/activities" element={<Activities />} />
           </Route>
