@@ -7,6 +7,7 @@ import Settings from './components/Settings';
 import Profile from './components/Profile';
 import Users from './components/Users';
 import Activities from './components/Activities';
+import Roles from './components/Roles';
 
 interface AuthContextType {
   user: any;
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/users" element={<Users />} />
+              <Route path="/roles" element={<Roles />} />
               <Route path="/activities" element={<Activities />} />
           </Route>
 

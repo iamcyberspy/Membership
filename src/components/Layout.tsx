@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, ClipboardList, Settings, Menu, Bell, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, ClipboardList, Settings, Menu, Bell, LogOut, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { useAuth } from '../App';
@@ -17,6 +17,7 @@ export default function Layout({ children }: LayoutProps) {
   const menuItems = [
     { name: 'หน้าหลัก', path: '/', icon: LayoutDashboard },
     { name: 'ผู้ใช้งาน', path: '/users', icon: Users },
+    { name: 'บทบาท & สิทธิ์', path: '/roles', icon: ShieldCheck },
     { name: 'กิจกรรม', path: '/activities', icon: ClipboardList },
     { name: 'ตั้งค่า', path: '/settings', icon: Settings },
   ];
